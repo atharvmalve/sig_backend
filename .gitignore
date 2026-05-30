@@ -1,0 +1,14 @@
+# Local environment variables (Crucial to ignore!)
+.env
+.env*.local
+
+# Python caches and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.poetry/
+venv/
+.venv/
+env/
