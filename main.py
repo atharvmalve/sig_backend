@@ -439,28 +439,69 @@ async def search_duckduckgo(query: str, client: httpx.AsyncClient, agent_index: 
     return urls
 
 
+# async def search_web(queries: List[str]) -> List[str]:
+#     all_urls: List[str] = []
+#     seen: set = set()
+#     limits = httpx.Limits(max_connections=10, max_keepalive_connections=5)
+#     async with httpx.AsyncClient(limits=limits, follow_redirects=True) as client:
+#         tasks = [
+#             search_duckduckgo(q, client, idx)
+#             for idx, q in enumerate(queries[:MAX_QUERIES])
+#         ]
+#         results = await asyncio.gather(*tasks, return_exceptions=True)
+#         for result in results:
+#             if isinstance(result, list):
+#                 for url in result:
+#                     if url not in seen:
+#                         seen.add(url)
+#                         all_urls.append(url)
+#     logger.info(f"Total unique URLs discovered: {len(all_urls)}")
+#     return all_urls
+
+
 async def search_web(queries: List[str]) -> List[str]:
     all_urls: List[str] = []
     seen: set = set()
-    limits = httpx.Limits(max_connections=10, max_keepalive_connections=5)
+    
+    # Restrict total queries based on your configuration limit
+    active_queries = queries[:MAX_QUERIES]
+    
+    # 1. We keep limits reasonable for small batches
+    limits = httpx.Limits(max_connections=5, max_keepalive_connections=2)
+    
     async with httpx.AsyncClient(limits=limits, follow_redirects=True) as client:
-        # tasks = [
-        #     search_duckduckgo(q, client, idx)
-        #     for idx, q in enumerate(queries[:MAX_QUERIES])
-        # ]
+        # 2. Define your batch size (3-4 queries at a time is optimal for DuckDuckGo)
         BATCH_SIZE = 3
-        for i in range(0, len(queries), BATCH_SIZE):
-            batch = queries[i:i + BATCH_SIZE]
-            tasks = [search_duckduckgo(q) for q in batch]
+        
+        for i in range(0, len(active_queries), BATCH_SIZE):
+            batch = active_queries[i:i + BATCH_SIZE]
+            logger.info(f"Processing search batch: entries {i} to {i + len(batch)}")
+            
+            # Create tasks only for the current batch
+            tasks = [
+                search_duckduckgo(q, client, idx + i)
+                for idx, q in enumerate(batch)
+            ]
+            
+            # Execute the batch concurrently
             results = await asyncio.gather(*tasks, return_exceptions=True)
-            # Process results...
-            await asyncio.sleep(1) # Small delay to avoid rate limiting
-        for result in results:
-            if isinstance(result, list):
-                for url in result:
-                    if url not in seen:
-                        seen.add(url)
-                        all_urls.append(url)
+            
+            # Process results for this batch immediately
+            for result in results:
+                if isinstance(result, Exception):
+                    logger.error(f"Search task generated an error: {result}")
+                    continue
+                if isinstance(result, list):
+                    for url in result:
+                        if url not in seen:
+                            seen.add(url)
+                            all_urls.append(url)
+            
+            # 3. CRITICAL: Add a small delay between batches to evade rate-limiting/timeouts
+            if i + BATCH_SIZE < len(active_queries):
+                logger.info("Throttling: Sleeping for 1.5 seconds before next search batch...")
+                await asyncio.sleep(1.5)
+                
     logger.info(f"Total unique URLs discovered: {len(all_urls)}")
     return all_urls
 
