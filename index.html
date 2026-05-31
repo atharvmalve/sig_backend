@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SIGNALS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --brand: #FF5A1F;
+  --brand-light: #FFF0EB;
+  --brand-dark: #CC4818;
+  --text-primary: #0A0A0A;
+  --text-secondary: #555;
+  --text-tertiary: #888;
+  --border: #E5E5E5;
+  --border-strong: #D0D0D0;
+  --surface: #FAFAFA;
+  --white: #FFFFFF;
+  --green: #16A34A;
+  --green-light: #DCFCE7;
+  --amber: #D97706;
+  --amber-light: #FEF3C7;
+  --red: #DC2626;
+  --red-light: #FEE2E2;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--white);
+  color: var(--text-primary);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 40px;
+  border-bottom: 1px solid var(--border);
+  background: var(--white);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.logo-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--brand);
+  border-radius: 50%;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+/* EMPTY STATE */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  text-align: center;
+}
+
+.empty-headline {
+  font-size: 44px;
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.empty-sub {
+  font-size: 17px;
+  color: var(--text-tertiary);
+  max-width: 480px;
+  line-height: 1.6;
+  font-weight: 400;
+  margin-bottom: 48px;
+}
+
+/* INPUT CARD */
+.input-card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  text-align: left;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.field-group {
+  margin-bottom: 18px;
+}
+
+.field-group:last-of-type { margin-bottom: 0; }
+
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+
+.field-input {
+  width: 100%;
+  padding: 10px 13px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--white);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color 0.15s;
+  line-height: 1.5;
+}
+
+.field-input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(255,90,31,0.1); }
+.field-input::placeholder { color: #C0C0C0; }
+
+textarea.field-input {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.divider { height: 1px; background: var(--border); margin: 22px 0; }
+
+.btn-primary {
+  width: 100%;
+  padding: 13px 20px;
+  background: var(--brand);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn-primary:hover { background: var(--brand-dark); }
+.btn-primary:active { transform: scale(0.99); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* LOADING STATE */
+.loading-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  gap: 32px;
+}
+
+.loading-progress {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.loading-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.4s, transform 0.4s;
+}
+
+.loading-step.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.loading-step.done .step-icon { color: var(--green); }
+.loading-step.active .step-icon { color: var(--brand); }
+.loading-step .step-icon { font-size: 15px; width: 20px; color: var(--border-strong); }
+
+.step-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.loading-step.active .step-label { color: var(--text-primary); font-weight: 500; }
+.loading-step.done .step-label { color: var(--text-tertiary); }
+
+/* ANALYSIS PAGE */
+.analysis-page {
+  flex: 1;
+  padding: 0 40px 80px;
+}
+
+/* MEMO HEADER */
+.memo-header {
+  border-bottom: 1px solid var(--border);
+  padding: 32px 0 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.memo-meta-row {
+  display: flex;
+  gap: 24px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.memo-meta {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.memo-meta span { color: var(--text-secondary); }
+
+.btn-reset {
+  padding: 8px 16px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-reset:hover { background: var(--surface); }
+
+/* SECTION */
+.section {
+  padding: 48px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 28px;
+}
+
+/* VERDICT HERO */
+.verdict-block {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.verdict-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.verdict-pill.strong { background: var(--green-light); color: #15803D; }
+.verdict-pill.moderate { background: var(--amber-light); color: #92400E; }
+.verdict-pill.weak { background: var(--red-light); color: #991B1B; }
+
+.verdict-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.verdict-headline {
+  font-size: 52px;
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  line-height: 1.0;
+  color: var(--text-primary);
+}
+
+.verdict-sub {
+  font-size: 18px;
+  color: var(--text-secondary);
+  font-weight: 400;
+  max-width: 640px;
+  line-height: 1.55;
+}
+
+.verdict-stats {
+  display: flex;
+  gap: 32px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.verdict-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.stat-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.stat-bar {
+  width: 80px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.stat-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--brand);
+  transition: width 0.8s ease;
+}
+
+/* WHY VERDICT */
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.insight-card {
+  background: var(--white);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.insight-icon {
+  font-size: 18px;
+  color: var(--brand);
+}
+
+.insight-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.insight-body {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+/* EVIDENCE */
+.evidence-section-title {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+
+.evidence-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.evidence-item {
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--white);
+}
+
+.evidence-item:last-child { border-bottom: none; }
+
+.evidence-quote {
+  font-size: 15px;
+  color: var(--text-primary);
+  line-height: 1.6;
+  font-style: italic;
+  margin-bottom: 12px;
+}
+
+.evidence-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.evidence-source {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.confidence-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.confidence-badge.high { background: var(--green-light); color: #15803D; }
+.confidence-badge.medium { background: var(--amber-light); color: #92400E; }
+.confidence-badge.low { background: var(--red-light); color: #991B1B; }
+
+.evidence-link {
+  font-size: 12px;
+  color: var(--brand);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.evidence-link:hover { text-decoration: underline; }
+
+.show-more-btn {
+  margin-top: 12px;
+  padding: 10px 0;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--border);
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.show-more-btn:hover { color: var(--text-primary); }
+
+/* PAIN CLUSTERS */
+.pain-cluster {
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 24px 0;
+}
+
+.pain-cluster:last-child { border-bottom: none; }
+
+.pain-cluster-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.pain-cluster-name {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.pain-cluster-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.pain-quotes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pain-quote {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  padding-left: 14px;
+  border-left: 2px solid var(--border);
+}
+
+/* COMPETITORS */
+.competitor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.competitor-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  background: var(--white);
+}
+
+.competitor-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+.competitor-mentions {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brand);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+
+.competitor-context {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.no-competitors {
+  font-size: 15px;
+  color: var(--text-tertiary);
+  font-style: italic;
+  padding: 24px 0;
+}
+
+/* OPPORTUNITIES */
+.opportunities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.opportunity-item {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.opportunity-item:last-child { border-bottom: none; }
+
+.opportunity-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--brand);
+  letter-spacing: 0.06em;
+  min-width: 24px;
+  flex-shrink: 0;
+}
+
+.opportunity-text {
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--text-primary);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+/* NEXT STEPS */
+.next-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.next-step-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 22px;
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.step-num-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--brand);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.step-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+
+.step-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* RESEARCH DETAILS */
+.research-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  width: 100%;
+  text-align: left;
+}
+
+.research-toggle:hover { color: var(--text-secondary); }
+
+.research-toggle svg { transition: transform 0.2s; }
+.research-toggle.open svg { transform: rotate(180deg); }
+
+.research-details {
+  display: none;
+  padding: 24px 0;
+  border-top: 1px solid var(--border);
+}
+
+.research-details.open { display: block; }
+
+.research-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+  margin-top: 24px;
+}
+
+.research-section-title:first-child { margin-top: 0; }
+
+.query-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.query-item {
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-family: 'SF Mono', monospace;
+}
+
+.source-breakdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.source-item {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+}
+
+.source-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+  margin-bottom: 2px;
+}
+
+.source-count {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* ERROR STATE */
+.error-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  text-align: center;
+  gap: 16px;
+}
+
+.error-title {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.error-sub {
+  font-size: 15px;
+  color: var(--text-tertiary);
+  max-width: 380px;
+}
+
+.btn-retry {
+  padding: 10px 20px;
+  background: var(--text-primary);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.btn-retry:hover { opacity: 0.85; }
+
+@media (max-width: 768px) {
+  header { padding: 14px 20px; }
+  .empty-headline { font-size: 30px; }
+  .empty-state, .loading-state, .analysis-page { padding-left: 20px; padding-right: 20px; }
+  .insight-grid { grid-template-columns: 1fr; }
+  .next-steps-grid { grid-template-columns: 1fr; }
+  .competitor-grid { grid-template-columns: 1fr; }
+  .verdict-headline { font-size: 36px; }
+  .memo-header { flex-direction: column; gap: 16px; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">
+      <div class="logo-dot"></div>
+      Signals
+    </div>
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      Backend Connected
+    </div>
+  </header>
+  <main id="main-content"></main>
+</div>
+
+<script>
+const LOADING_STEPS = [
+  { label: "Analyzing communities", icon: "◌" },
+  { label: "Finding competitors", icon: "◌" },
+  { label: "Extracting pain points", icon: "◌" },
+  { label: "Evaluating demand signals", icon: "◌" },
+  { label: "Building recommendation", icon: "◌" },
+];
+
+let appState = { view: "empty", data: null, error: null, formData: null };
+let loadingInterval = null;
+let expandedEvidence = false;
+
+function setState(newState) {
+  appState = { ...appState, ...newState };
+  render();
+}
+
+function getVerdictClass(verdict) {
+  if (!verdict) return "moderate";
+  const v = verdict.toLowerCase();
+  if (v.includes("strong")) return "strong";
+  if (v.includes("weak") || v.includes("low") || v.includes("poor")) return "weak";
+  return "moderate";
+}
+
+function getVerdictLabel(verdict) {
+  if (!verdict) return "Moderate Demand";
+  const v = verdict.toLowerCase();
+  if (v.includes("strong")) return "Strong Demand";
+  if (v.includes("weak") || v.includes("low") || v.includes("poor")) return "Weak Demand";
+  return "Moderate Demand";
+}
+
+function scoreToPercent(score) {
+  if (typeof score === 'number') return Math.min(100, Math.max(0, score));
+  if (typeof score === 'string') {
+    const n = parseFloat(score);
+    if (!isNaN(n)) return n > 1 ? Math.min(100, n) : n * 100;
+  }
+  return 50;
+}
+
+function capitalize(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+function getInsightCards(data) {
+  const scores = data.scores || {};
+  const analysis = data.analysis || {};
+  const cards = [];
+
+  const demandScore = scores.demand_score || scores.demand || scores.discussion_volume || 0;
+  const demandPct = scoreToPercent(demandScore);
+  cards.push({
+    icon: demandPct >= 60 ? "📣" : demandPct >= 35 ? "💬" : "🔇",
+    title: demandPct >= 60 ? "Active Discussion" : demandPct >= 35 ? "Moderate Discussion" : "Limited Discussion",
+    body: demandPct >= 60 ? "People are actively discussing this problem across multiple communities." : demandPct >= 35 ? "There is some discussion but engagement is inconsistent." : "Very few meaningful discussions were found around this problem.",
+  });
+
+  const wtpScore = scores.willingness_to_pay || scores.buying_intent || scores.monetization || 0;
+  const wtpPct = scoreToPercent(wtpScore);
+  cards.push({
+    icon: wtpPct >= 60 ? "💳" : wtpPct >= 35 ? "🤔" : "❌",
+    title: wtpPct >= 60 ? "Strong Buying Intent" : wtpPct >= 35 ? "Mixed Buying Intent" : "Weak Buying Intent",
+    body: wtpPct >= 60 ? "Users demonstrate clear willingness to pay for a solution." : wtpPct >= 35 ? "Some users show interest in paying, but signals are inconsistent." : "Very few users expressed willingness to pay for this type of solution.",
+  });
+
+  const compScore = scores.competition_score || scores.competition || 0;
+  const compPct = scoreToPercent(compScore);
+  cards.push({
+    icon: compPct >= 60 ? "⚔️" : compPct >= 35 ? "🔍" : "🆓",
+    title: compPct >= 60 ? "Crowded Market" : compPct >= 35 ? "Moderate Competition" : "Limited Competition",
+    body: compPct >= 60 ? "Several established players are competing in this space." : compPct >= 35 ? "A few competitors exist but the space is not saturated." : "Few direct alternatives were discovered — the space may be underserved.",
+  });
+
+  return cards;
+}
+
+function renderEmpty() {
+  return `
+    <div class="empty-state">
+      <h1 class="empty-headline">Should you build this?</h1>
+      <p class="empty-sub">Describe a problem and Signals will analyze real-world demand, competition, pain points, and market conversations.</p>
+      <div class="input-card">
+        <div class="field-group">
+          <label class="field-label">Problem Statement</label>
+          <textarea class="field-input" id="f-problem" placeholder="Describe the problem you're solving in detail..." rows="3"></textarea>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Target User</label>
+          <input class="field-input" id="f-user" type="text" placeholder="e.g. Early-stage startup founders" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Current Solution</label>
+          <input class="field-input" id="f-solution" type="text" placeholder="e.g. Spreadsheets, manual research, consultants" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Geography</label>
+          <input class="field-input" id="f-geo" type="text" placeholder="e.g. United States, Global, Southeast Asia" />
+        </div>
+        <div class="divider"></div>
+        <button class="btn-primary" id="analyze-btn" onclick="handleAnalyze()">Analyze Market Demand</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderLoading() {
+  return `
+    <div class="loading-state">
+      <div class="loading-progress" id="loading-steps">
+        ${LOADING_STEPS.map((s, i) => `
+          <div class="loading-step" id="step-${i}">
+            <span class="step-icon" id="step-icon-${i}">—</span>
+            <span class="step-label">${s.label}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderAnalysis(data) {
+  const req = data.request || appState.formData || {};
+  const analysis = data.analysis || {};
+  const scores = data.scores || {};
+  const summary = data.evidence_summary || {};
+  const metadata = data.metadata || {};
+  const evidence = summary.top_evidence || summary.evidence || summary.evidence_snippets || [];
+  const clusters = summary.pain_clusters || analysis.pain_clusters || [];
+  const competitors = summary.competitors || analysis.competitors || [];
+  const opportunities = analysis.top_opportunities || [];
+  const nextSteps = analysis.recommended_next_steps || [];
+  const queries = data.generated_queries || [];
+
+  const verdict = analysis.market_verdict || scores.overall_verdict || "Moderate Demand";
+  const verdictClass = getVerdictClass(verdict);
+  const verdictLabel = getVerdictLabel(verdict);
+  const verdictSummary = analysis.summary || analysis.verdict_summary || `Signals analyzed ${metadata.sources_analyzed || evidence.length || 'multiple'} sources and identified ${verdictLabel.toLowerCase()} for this problem.`;
+  const confidence = analysis.confidence || scores.confidence || analysis.confidence_level || "Moderate";
+  const urgency = analysis.market_urgency || analysis.urgency || scores.market_urgency || "Moderate";
+
+  const insightCards = getInsightCards(data);
+
+  const topEvidence = evidence.slice(0, expandedEvidence ? evidence.length : 5);
+
+  const sourceBreakdown = metadata.source_breakdown || summary.source_breakdown || {};
+
+  return `
+    <div class="analysis-page">
+      <div class="memo-header">
+        <div>
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:6px;">Market Analysis Memo</div>
+          <div style="font-size:17px;font-weight:500;color:var(--text-primary);letter-spacing:-0.01em;">${req.problem_statement || 'Problem Analysis'}</div>
+          <div class="memo-meta-row">
+            ${req.target_user ? `<span class="memo-meta">User: <span>${req.target_user}</span></span>` : ''}
+            ${req.geography ? `<span class="memo-meta">Market: <span>${req.geography}</span></span>` : ''}
+            <span class="memo-meta">Generated: <span>${new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'})}</span></span>
+          </div>
+        </div>
+        <button class="btn-reset" onclick="handleReset()">← New Analysis</button>
+      </div>
+
+      <!-- SECTION 1: VERDICT -->
+      <div class="section">
+        <div class="section-label">01 — Market Verdict</div>
+        <div class="verdict-block">
+          <div class="verdict-pill ${verdictClass}">
+            <div class="verdict-dot"></div>
+            ${verdictLabel}
+          </div>
+          <div class="verdict-headline">${verdictLabel}</div>
+          <div class="verdict-sub">${verdictSummary}</div>
+          <div class="verdict-stats">
+            <div class="verdict-stat">
+              <div class="stat-label">Confidence</div>
+              <div class="stat-value">${typeof confidence === 'number' ? confidence + '%' : confidence}</div>
+              ${typeof confidence === 'number' ? `<div class="stat-bar"><div class="stat-fill" style="width:${Math.min(100,confidence)}%"></div></div>` : ''}
+            </div>
+            <div class="verdict-stat">
+              <div class="stat-label">Market Urgency</div>
+              <div class="stat-value">${typeof urgency === 'number' ? urgency + '%' : urgency}</div>
+              ${typeof urgency === 'number' ? `<div class="stat-bar"><div class="stat-fill" style="width:${Math.min(100,urgency)}%"></div></div>` : ''}
+            </div>
+            ${metadata.sources_analyzed ? `<div class="verdict-stat"><div class="stat-label">Sources Analyzed</div><div class="stat-value">${metadata.sources_analyzed}</div></div>` : ''}
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: WHY -->
+      <div class="section">
+        <div class="section-label">02 — Why This Verdict</div>
+        <div class="insight-grid">
+          ${insightCards.map(c => `
+            <div class="insight-card">
+              <div class="insight-icon">${c.icon}</div>
+              <div class="insight-title">${c.title}</div>
+              <div class="insight-body">${c.body}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- SECTION 3: EVIDENCE -->
+      ${evidence.length > 0 ? `
+      <div class="section">
+        <div class="section-label">03 — Real Market Evidence</div>
+        <div class="evidence-section-title">What People Are Actually Saying</div>
+        <div class="evidence-list" id="evidence-list">
+          ${topEvidence.map(e => {
+            const quote = e.text || e.quote || e.content || e.snippet || '';
+            const source = e.source_type || e.source || e.platform || 'Source';
+            const conf = e.confidence || e.relevance || '';
+            const url = e.url || e.source_url || '';
+            return `
+              <div class="evidence-item">
+                <div class="evidence-quote">"${quote}"</div>
+                <div class="evidence-meta">
+                  <span class="evidence-source">${capitalize(source)}</span>
+                  ${conf ? `<span class="confidence-badge ${(conf+'').toLowerCase().replace(' ','-')}">${conf}</span>` : ''}
+                  ${url ? `<a class="evidence-link" href="${url}" target="_blank">View source ↗</a>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
+          ${evidence.length > 5 ? `
+            <button class="show-more-btn" onclick="toggleEvidence()">
+              ${expandedEvidence ? '↑ Show less' : `↓ Show ${evidence.length - 5} more pieces of evidence`}
+            </button>
+          ` : ''}
+        </div>
+      </div>
+      ` : ''}
+
+      <!-- SECTION 4: PAIN CLUSTERS -->
+      ${clusters.length > 0 ? `
+      <div class="section">
+        <div class="section-label">04 — Pain Clusters</div>
+        <div>
+          ${clusters.map(c => {
+            const name = c.cluster_name || c.name || c.theme || 'Pain Area';
+            const count = c.mention_count || c.mentions || c.count || '';
+            const quotes = c.supporting_quotes || c.quotes || c.examples || [];
+            return `
+              <div class="pain-cluster">
+                <div class="pain-cluster-header">
+                  <div class="pain-cluster-name">${name}</div>
+                  ${count ? `<div class="pain-cluster-count">${count} mention${count !== 1 ? 's' : ''}</div>` : ''}
+                </div>
+                ${quotes.length > 0 ? `
+                  <div class="pain-quotes">
+                    ${quotes.slice(0,3).map(q => `<div class="pain-quote">${typeof q === 'string' ? q : q.text || q.quote || ''}</div>`).join('')}
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      <!-- SECTION 5: COMPETITORS -->
+      <div class="section">
+        <div class="section-label">05 — Competitor Landscape</div>
+        ${competitors.length > 0 ? `
+        <div class="competitor-grid">
+          ${competitors.map(c => {
+            const name = c.name || c.competitor || c.product || 'Competitor';
+            const mentions = c.mentions || c.mention_count || '';
+            const context = c.context || c.description || c.positioning || '';
+            return `
+              <div class="competitor-card">
+                <div class="competitor-name">${name}</div>
+                ${mentions ? `<div class="competitor-mentions">Mentioned ${mentions} time${mentions !== 1 ? 's' : ''}</div>` : ''}
+                ${context ? `<div class="competitor-context">${context}</div>` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+        ` : `<div class="no-competitors">No strong competitors were consistently mentioned across sources.</div>`}
+      </div>
+
+      <!-- SECTION 6: OPPORTUNITIES -->
+      ${opportunities.length > 0 ? `
+      <div class="section">
+        <div class="section-label">06 — Opportunities</div>
+        <div class="opportunities-list">
+          ${opportunities.map((o, i) => `
+            <div class="opportunity-item">
+              <div class="opportunity-num">0${i+1}</div>
+              <div class="opportunity-text">${typeof o === 'string' ? o : o.opportunity || o.text || o.description || ''}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      <!-- SECTION 7: NEXT STEPS -->
+      ${nextSteps.length > 0 ? `
+      <div class="section">
+        <div class="section-label">07 — Recommended Next Steps</div>
+        <div class="next-steps-grid">
+          ${nextSteps.slice(0,3).map((s, i) => {
+            const title = typeof s === 'string' ? s : s.step || s.action || s.title || s;
+            const desc = typeof s === 'object' ? (s.description || s.rationale || s.detail || '') : '';
+            return `
+              <div class="next-step-card">
+                <div class="step-num-badge">Step ${i+1}</div>
+                <div class="step-title">${title}</div>
+                ${desc ? `<div class="step-desc">${desc}</div>` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      <!-- SECTION 8: RESEARCH DETAILS -->
+      <div class="section" style="border-bottom:none;padding-bottom:0;">
+        <div class="section-label">08 — Research Details</div>
+        <button class="research-toggle" id="research-toggle" onclick="toggleResearch()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 4.5L7 9.5L12 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          View Research Process
+        </button>
+        <div class="research-details" id="research-details">
+          ${queries.length > 0 ? `
+            <div class="research-section-title">Search Queries Generated</div>
+            <div class="query-list">
+              ${queries.map(q => `<div class="query-item">${typeof q === 'string' ? q : q.query || q}</div>`).join('')}
+            </div>
+          ` : ''}
+          ${Object.keys(sourceBreakdown).length > 0 ? `
+            <div class="research-section-title">Source Breakdown</div>
+            <div class="source-breakdown">
+              ${Object.entries(sourceBreakdown).map(([k,v]) => `
+                <div class="source-item">
+                  <div class="source-name">${k}</div>
+                  <div class="source-count">${v}</div>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+          ${metadata && Object.keys(metadata).length > 0 ? `
+            <div class="research-section-title">Run Metadata</div>
+            <div class="query-list">
+              ${Object.entries(metadata).filter(([k]) => !['source_breakdown'].includes(k)).map(([k,v]) => `
+                <div class="query-item">${k.replace(/_/g,' ')}: ${typeof v === 'object' ? JSON.stringify(v) : v}</div>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderError() {
+  return `
+    <div class="error-state">
+      <div style="font-size:32px;">⚠</div>
+      <div class="error-title">Analysis failed</div>
+      <div class="error-sub">${appState.error || 'Could not connect to the backend. Make sure the server is running on http://127.0.0.1:8000'}</div>
+      <button class="btn-retry" onclick="handleRetry()">Retry Analysis</button>
+      <button class="btn-reset" onclick="handleReset()" style="margin-top:8px;">Start Over</button>
+    </div>
+  `;
+}
+
+function render() {
+  const main = document.getElementById('main-content');
+  if (!main) return;
+  if (appState.view === 'empty') { main.innerHTML = renderEmpty(); }
+  else if (appState.view === 'loading') { main.innerHTML = renderLoading(); animateLoadingSteps(); }
+  else if (appState.view === 'analysis') { main.innerHTML = renderAnalysis(appState.data); }
+  else if (appState.view === 'error') { main.innerHTML = renderError(); }
+}
+
+function animateLoadingSteps() {
+  if (loadingInterval) clearInterval(loadingInterval);
+  let current = 0;
+  const steps = document.querySelectorAll('.loading-step');
+  if (steps.length === 0) return;
+  steps[0].classList.add('visible', 'active');
+  document.getElementById('step-icon-0').textContent = '→';
+  loadingInterval = setInterval(() => {
+    const prevStep = document.getElementById('step-' + current);
+    if (prevStep) {
+      prevStep.classList.remove('active');
+      prevStep.classList.add('done');
+      const icon = document.getElementById('step-icon-' + current);
+      if (icon) icon.textContent = '✓';
+    }
+    current++;
+    if (current >= LOADING_STEPS.length) { clearInterval(loadingInterval); return; }
+    const nextStep = document.getElementById('step-' + current);
+    if (nextStep) {
+      nextStep.classList.add('visible', 'active');
+      const icon = document.getElementById('step-icon-' + current);
+      if (icon) icon.textContent = '→';
+    }
+  }, 1800);
+}
+
+function handleAnalyze() {
+  const problem = document.getElementById('f-problem')?.value?.trim();
+  const user = document.getElementById('f-user')?.value?.trim();
+  const solution = document.getElementById('f-solution')?.value?.trim();
+  const geo = document.getElementById('f-geo')?.value?.trim();
+  if (!problem) { document.getElementById('f-problem')?.focus(); return; }
+  const formData = { problem_statement: problem, target_user: user || '', current_solution: solution || '', geography: geo || '' };
+  appState.formData = formData;
+  setState({ view: 'loading' });
+  callAPI(formData);
+}
+
+async function callAPI(formData) {
+  try {
+    const res = await fetch('http://127.0.0.1:8000/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+    if (!res.ok) throw new Error(`Server returned ${res.status}`);
+    const data = await res.json();
+    if (loadingInterval) clearInterval(loadingInterval);
+    const remainingSteps = document.querySelectorAll('.loading-step:not(.done)');
+    remainingSteps.forEach((s, i) => {
+      setTimeout(() => {
+        s.classList.remove('active');
+        s.classList.add('visible', 'done');
+        const icon = s.querySelector('.step-icon');
+        if (icon) icon.textContent = '✓';
+      }, i * 200);
+    });
+    setTimeout(() => setState({ view: 'analysis', data }), 600);
+  } catch (err) {
+    if (loadingInterval) clearInterval(loadingInterval);
+    setState({ view: 'error', error: err.message });
+  }
+}
+
+function handleRetry() {
+  if (!appState.formData) { setState({ view: 'empty' }); return; }
+  setState({ view: 'loading' });
+  callAPI(appState.formData);
+}
+
+function handleReset() {
+  expandedEvidence = false;
+  setState({ view: 'empty', data: null, error: null });
+}
+
+function toggleEvidence() {
+  expandedEvidence = !expandedEvidence;
+  const main = document.getElementById('main-content');
+  if (main && appState.data) main.innerHTML = renderAnalysis(appState.data);
+}
+
+function toggleResearch() {
+  const details = document.getElementById('research-details');
+  const toggle = document.getElementById('research-toggle');
+  if (!details || !toggle) return;
+  details.classList.toggle('open');
+  toggle.classList.toggle('open');
+}
+
+render();
+</script>
+</body>
+</html>
