@@ -43,7 +43,7 @@ GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 APP_ENV: str = os.getenv("APP_ENV", "development")
 APP_NAME: str = os.getenv("APP_NAME", "Market Urgency Engine")
 APP_VERSION: str = os.getenv("APP_VERSION", "1.0.0")
-REQUEST_TIMEOUT: int = int(os.getenv("REQUEST_TIMEOUT", "30"))
+REQUEST_TIMEOUT: int = int(os.getenv("REQUEST_TIMEOUT", "120"))
 MAX_URLS_PER_QUERY: int = int(os.getenv("MAX_URLS_PER_QUERY", "10"))
 MAX_QUERIES: int = int(os.getenv("MAX_QUERIES", "15"))
 
@@ -1260,6 +1260,7 @@ app.add_middleware(
         "http://localhost:3000",
         "http://localhost:5173",
         "http://localhost:8080",
+        "https://atharvmalve.github.io/sig_backend"
         "*",
     ],
     allow_credentials=True,
