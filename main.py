@@ -397,46 +397,98 @@ def calculate_weighted_signals(
 # 7. SEARCH LAYER
 # =============================================================================
 
-async def search_duckduckgo(query: str, client: httpx.AsyncClient, agent_index: int = 0) -> List[str]:
-    urls: List[str] = []
+# async def search_duckduckgo(query: str, client: httpx.AsyncClient, agent_index: int = 0) -> List[str]:
+#     urls: List[str] = []
+#     try:
+#         encoded_query = urllib.parse.quote_plus(query)
+#         search_url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
+#         headers = {
+#             "User-Agent": get_rotating_user_agent(agent_index),
+#             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+#             "Accept-Language": "en-US,en;q=0.5",
+#             "Accept-Encoding": "gzip, deflate",
+#             "Connection": "keep-alive",
+#             "Referer": "https://duckduckgo.com/",
+#         }
+#         response = await client.get(search_url, headers=headers, timeout=REQUEST_TIMEOUT)
+#         if response.status_code != 200:
+#             logger.warning(f"DuckDuckGo returned {response.status_code} for query: {query}")
+#             return urls
+#         soup = BeautifulSoup(response.text, "html.parser")
+#         results = soup.find_all("a", class_="result__url")
+#         if not results:
+#             results = soup.find_all("a", href=True)
+#         for tag in results:
+#             href = tag.get("href", "")
+#             if not href:
+#                 continue
+#             if href.startswith("//duckduckgo.com") or "duckduckgo.com" in href:
+#                 uddg_match = re.search(r"uddg=([^&]+)", href)
+#                 if uddg_match:
+#                     href = urllib.parse.unquote(uddg_match.group(1))
+#             if href.startswith("http") and is_valid_url(href):
+#                 if href not in urls:
+#                     urls.append(href)
+#             if len(urls) >= MAX_URLS_PER_QUERY:
+#                 break
+#         logger.info(f"Query '{query[:50]}' → {len(urls)} URLs")
+#     except httpx.TimeoutException:
+#         logger.warning(f"Timeout searching for: {query[:50]}")
+#     except Exception as e:
+#         logger.error(f"Search error for '{query[:50]}': {e}")
+#     return urls
+
+
+async def search_duckduckgo(query: str, client: httpx.AsyncClient, idx: int) -> List[str]:
+    # Use the lightweight, bot-friendly HTML endpoint
+    url = "https://html.duckduckgo.com/html/"
+    data = {"q": query}
+    
+    # Render servers MUST supply standard browser headers to avoid instant connection dropping
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Origin": "https://html.duckduckgo.com",
+        "Referer": "https://html.duckduckgo.com/"
+    }
+    
     try:
-        encoded_query = urllib.parse.quote_plus(query)
-        search_url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
-        headers = {
-            "User-Agent": get_rotating_user_agent(agent_index),
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.5",
-            "Accept-Encoding": "gzip, deflate",
-            "Connection": "keep-alive",
-            "Referer": "https://duckduckgo.com/",
-        }
-        response = await client.get(search_url, headers=headers, timeout=REQUEST_TIMEOUT)
+        # Use POST to send parameters to html.duckduckgo.com
+        response = await client.post(url, data=data, headers=headers, timeout=15.0)
+        
         if response.status_code != 200:
-            logger.warning(f"DuckDuckGo returned {response.status_code} for query: {query}")
-            return urls
+            logger.error(f"Search error {response.status_code} for '{query}'")
+            return []
+            
         soup = BeautifulSoup(response.text, "html.parser")
-        results = soup.find_all("a", class_="result__url")
-        if not results:
-            results = soup.find_all("a", href=True)
-        for tag in results:
-            href = tag.get("href", "")
-            if not href:
-                continue
-            if href.startswith("//duckduckgo.com") or "duckduckgo.com" in href:
-                uddg_match = re.search(r"uddg=([^&]+)", href)
-                if uddg_match:
-                    href = urllib.parse.unquote(uddg_match.group(1))
-            if href.startswith("http") and is_valid_url(href):
-                if href not in urls:
-                    urls.append(href)
-            if len(urls) >= MAX_URLS_PER_QUERY:
-                break
-        logger.info(f"Query '{query[:50]}' → {len(urls)} URLs")
-    except httpx.TimeoutException:
-        logger.warning(f"Timeout searching for: {query[:50]}")
+        urls = []
+        
+        # Extract anchors with the CSS class 'result__url' used by DuckDuckGo HTML
+        for a in soup.find_all("a", class_="result__url"):
+            href = a.get("href")
+            if href:
+                # DuckDuckGo proxies outbound links through an internal redirect format; clean it up
+                if "uddg=" in href:
+                    parsed_url = urllib.parse.parse_qs(urllib.parse.urlparse(href).query)
+                    if "uddg" in parsed_url:
+                        href = parsed_url["uddg"][0]
+                urls.append(href)
+                
+        return urls[:5] # Return top 5 URLs discovered
+        
     except Exception as e:
-        logger.error(f"Search error for '{query[:50]}': {e}")
-    return urls
+        logger.error(f"Search error for '{query}': {str(e)}")
+        return []
+
+
+
+
+
+
+
+
+
 
 
 # async def search_web(queries: List[str]) -> List[str]:
